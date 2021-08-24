@@ -18,27 +18,27 @@ public class MyBot extends TelegramLongPollingBot {
     private final Map<String, String> chatIdByUserID = new HashMap<>();
     private final Map<String, Integer> userChatID = new HashMap<>();
 
-    private final boolean[][] swapStatusWeb = new boolean[50][50];
-    private final boolean[][] swapStatusProg = new boolean[50][50];
+    private final boolean[][] swapStatusWeb = new boolean[200][200];
+    private final boolean[][] swapStatusProg = new boolean[200][200];
 
     private final String adminID = "822910469";
 
     private final String help = "Write \"/help\" to see the guideline\n\n" +
-            "Write \"web register\" or \"programming register\" to register for the upcoming practice lesson.\n\n" +
-            "Write \"web cancel\" or \"programming cancel\" to cancel your turn.\n\n" +
+            "Write \"web register\" or \"prog register\" to register for the upcoming practice lesson.\n\n" +
+            "Write \"web cancel\" or \"prog cancel\" to cancel your turn.\n\n" +
             "Write \"web show\" to take a look at the current WEB queue\n\n" +
-            "Write \"programming show\" to take a look at the current PROGRAMMING " +
+            "Write \"prog show\" to take a look at the current prog " +
             "queue\n\n" +
-            "Write \"web push me end\" or \"programming push me end\" to push yourself at the end of the queue.\n\n" +
-            "Write \"web swap with x\" or \"programming swap with x\" (x is position with whom you want to swap)\n\n";
+            "Write \"web push me end\" or \"prog push me end\" to push yourself at the end of the queue.\n\n" +
+            "Write \"web swap with x\" or \"prog swap with x\" (x is position with whom you want to swap)\n\n";
 
     private final String admin_help = " admin get all : get info of all users\n\n" +
             "admin web clear: clear web queue\n\n" +
-            "admin programming clear: clear programming queue\n\n" +
+            "admin prog clear: clear prog queue\n\n" +
             "admin web remove x: remove x-th position from web queue\n\n" +
-            "admin programming remove x: remove x-th position from programming queue\n\n" +
+            "admin prog remove x: remove x-th position from prog queue\n\n" +
             "admin web add userID: add user to web queue by userID\n\n" +
-            "admin programming add userID: add user to programming queue by userID\n\n";
+            "admin prog add userID: add user to prog queue by userID\n\n";
     @Override
     public String getBotUsername() {
         return "P3233_AvtoOchered_bot";
@@ -68,7 +68,7 @@ public class MyBot extends TelegramLongPollingBot {
             String chatID = update.getMessage().getChatId().toString();
             String firstName = update.getMessage().getFrom().getFirstName();
             String lastName = update.getMessage().getFrom().getLastName();
-            String displayName = firstName + ' ' + lastName;
+            String displayName = firstName + ' ' + (lastName == null ? "" : lastName);
 
             if(! usernameByID.containsKey(userID)){
                 usernameByID.put(userID, displayName);
@@ -100,7 +100,7 @@ public class MyBot extends TelegramLongPollingBot {
             if(messageText.equals("web register")){
                 if(inQueueWeb.containsKey(userID)){
                     send("You are already registered! If you want to cancel your turn, " +
-                            "write \"web cancel\" or \"programming cancel\"", chatID);
+                            "write \"web cancel\" or \"prog cancel\"", chatID);
                 } else{
                     send("Successfully! Write \"web show\" to check the list", chatID);
                     queueWeb.add(userID);
@@ -108,12 +108,12 @@ public class MyBot extends TelegramLongPollingBot {
                 }
             }
 
-            if(messageText.equals("programming register")){
+            if(messageText.equals("prog register")){
                 if(inQueueProg.containsKey(userID)){
                     send("You are already registered! If you want to cancel your turn, " +
-                            "write \"web cancel\" or \"programming cancel\"", chatID);
+                            "write \"web cancel\" or \"prog cancel\"", chatID);
                 } else{
-                    send("Successfully! Write \"programming show\" to check the list", chatID);
+                    send("Successfully! Write \"prog show\" to check the list", chatID);
                     queueProg.add(userID);
                     inQueueProg.put(userID, queueProg.size());
                 }
@@ -129,11 +129,11 @@ public class MyBot extends TelegramLongPollingBot {
                 }
             }
 
-            if(messageText.equals("programming cancel")){
+            if(messageText.equals("prog cancel")){
                 if(inQueueProg.containsKey(userID)){
                     inQueueProg.remove(userID);
                     queueProg.remove(userID);
-                    send("You've been removed from the queue of PROGRAMMING", chatID);
+                    send("You've been removed from the queue of prog", chatID);
 
                 } else {
                     send("Don't worry! You have not registered before", chatID);
@@ -142,22 +142,28 @@ public class MyBot extends TelegramLongPollingBot {
 
             if(messageText.equals("web show")){
                 int cnt = 0;
+                StringBuilder stringBuilder = new StringBuilder();
                 for( String id : queueWeb ){
                     ++cnt;
-                    send(cnt + ": " + usernameByID.get(id), chatID);
+                    stringBuilder.append(cnt).append(": ").append(usernameByID.get(id)).append("\n");
                 }
                 if(cnt == 0){
-                    send("Queue for WEB is empty! Let's register", chatID);
+                    send("Queue for prog is empty! Let's register", chatID);
+                } else{
+                    send(stringBuilder.toString(), chatID);
                 }
             }
-            if(messageText.equals("programming show")){
+            if(messageText.equals("prog show")){
                 int cnt = 0;
+                StringBuilder stringBuilder = new StringBuilder();
                 for( String id : queueProg ){
                     ++cnt;
-                    send(cnt + ": " + usernameByID.get(id), chatID);
+                    stringBuilder.append(cnt).append(": ").append(usernameByID.get(id)).append("\n");
                 }
                 if(cnt == 0){
-                    send("Queue for PROGRAMMING is empty! Let's register", chatID);
+                    send("Queue for prog is empty! Let's register", chatID);
+                } else{
+                    send(stringBuilder.toString(), chatID);
                 }
             }
 
@@ -171,13 +177,13 @@ public class MyBot extends TelegramLongPollingBot {
                 }
             }
 
-            if(messageText.equals("programming push me end")){
+            if(messageText.equals("prog push me end")){
                 if(inQueueProg.containsKey(userID)){
                     queueProg.remove(userID);
                     queueProg.add(userID);
                     send("You've been pushed to the end of WEB queue", chatID);
                 } else {
-                    send("You have not registered before. Write \"programming register\" to be in queue", chatID);
+                    send("You have not registered before. Write \"prog register\" to be in queue", chatID);
                 }
             }
 
@@ -215,9 +221,9 @@ public class MyBot extends TelegramLongPollingBot {
                                 queueWeb.set(pos-1, userID);
                                 queueWeb.set(me-1, hisID);
                                 send("Swap successfully!", chatID);
-                                send("Swap successfully", chatIdByUserID.get(hisID));
+                                send("Swap successfully!", chatIdByUserID.get(hisID));
                                 swapStatusWeb[pos][me] = false;
-                                swapStatusWeb[me][pos] = true;
+                                swapStatusWeb[me][pos] = false;
                             }
                             else{
                                 send("Waiting for her/him acceptance! Tell her/him about that!", chatID);
@@ -226,7 +232,7 @@ public class MyBot extends TelegramLongPollingBot {
                         } else{
                             send("There is nobody at this position! Please check the list again!", chatID);
                         }
-                    } else if(subject.equals("programming")) {
+                    } else if(subject.equals("prog")) {
                         int me = 0;
                         for( String id : queueProg){
                             ++me;
@@ -243,13 +249,13 @@ public class MyBot extends TelegramLongPollingBot {
                             if (swapStatusProg[pos][me]) {
                                 queueProg.set(pos - 1, userID);
                                 queueProg.set(me - 1, hisID);
-                                swapStatusWeb[pos][me] = false;
-                                swapStatusWeb[me][pos] = true;
+                                swapStatusProg[pos][me] = false;
+                                swapStatusProg[me][pos] = false;
                                 send("Swap successfully!", chatID);
                                 send("Swap successfully", chatIdByUserID.get(hisID));
                             } else {
                                 send("Waiting for her/him acceptance! Tell her/him about that!", chatID);
-                                send(displayName + " at position " + me + " is asking you for swapping in PROGRAMMING! If you agree, please write \"web swap with " + me + " \" ", chatIdByUserID.get(hisID));
+                                send(displayName + " at position " + me + " is asking you for swapping in prog! If you agree, please write \"web swap with " + me + " \" ", chatIdByUserID.get(hisID));
                             }
                         } else {
                             send("There is nobody at this position! Please check the list again!", chatID);
@@ -267,9 +273,9 @@ public class MyBot extends TelegramLongPollingBot {
                 if(role.equals("admin")){
                     // clear : clear the queue
                     // web remove x : remove x-th position from the WEB queue
-                    // programming remove x: remove x-th position from the PROGRAMMING queue
+                    // prog remove x: remove x-th position from the prog queue
                     // web add userID: add userID to the web queue
-                    // programming add userID: add userID programming queue
+                    // prog add userID: add userID prog queue
                     // all userID: get all userID in the room
 
                     // clear : clear the queue
@@ -281,13 +287,13 @@ public class MyBot extends TelegramLongPollingBot {
                         queueWeb.clear();
                         send("Web clear!", chatID);
                     }
-                    if(messageText.contains("programming clear")){
+                    if(messageText.contains("prog clear")){
                         for (boolean[] booleans : swapStatusProg) {
                             Arrays.fill(booleans, false);
                         }
                         inQueueProg.clear();
                         queueProg.clear();
-                        send("Programming clear!", chatID);
+                        send("prog clear!", chatID);
                     }
 
                     // web remove x
@@ -314,7 +320,7 @@ public class MyBot extends TelegramLongPollingBot {
                         } else {
                             send("There is nobody at this position! Please check the list again!", chatID);
                         }
-                    } else if( messageText.contains("programming remove")){
+                    } else if( messageText.contains("prog remove")){
                         int lastIndexOfSpace = messageText.lastIndexOf(' ');
                         if(lastIndexOfSpace < 0) return;
 
@@ -334,7 +340,7 @@ public class MyBot extends TelegramLongPollingBot {
                             inQueueProg.remove(hisUserID);
                             int hisUserChatId = userChatID.get(hisUserID);
                             Arrays.fill(swapStatusProg[hisUserChatId], false);
-                            send("User at position " + pos + " has been removed from PROGRAMMING queue!", chatID);
+                            send("User at position " + pos + " has been removed from prog queue!", chatID);
                         } else {
                             send("There is nobody at this position! Please check the list again!", chatID);
                         }
@@ -365,7 +371,7 @@ public class MyBot extends TelegramLongPollingBot {
                             send("User is already in the queue!", chatID);
                         }
                     }
-                    if(messageText.contains("add") && messageText.contains("programming")){
+                    if(messageText.contains("add") && messageText.contains("prog")){
                         int lastIndexOfSpace = messageText.lastIndexOf(' ');
                         if(lastIndexOfSpace < 0) return;
 
@@ -377,7 +383,7 @@ public class MyBot extends TelegramLongPollingBot {
                         if(!inQueueProg.containsKey(hisID)){
                             queueWeb.add(hisID);
                             inQueueProg.put(hisID, queueProg.size());
-                            send("Successfully! Write \"programming show\" to check the list", chatID);
+                            send("Successfully! Write \"prog show\" to check the list", chatID);
                         } else{
                             send("User is already in the queue!", chatID);
                         }
