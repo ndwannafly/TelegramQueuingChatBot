@@ -46,7 +46,7 @@ public class MyBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "1982606218:AAHRyu-Os4aKMDueW2oY2pld2SXcbXs2kb4";
+        return "secret";
     }
 
     public void send(String text, String chatId){
