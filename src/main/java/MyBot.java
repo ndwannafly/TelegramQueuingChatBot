@@ -23,7 +23,8 @@ public class MyBot extends TelegramLongPollingBot {
 
     private final String adminID = "822910469";
 
-    private final String help = "Write \"web register\" or \"programming register\" to register for the upcoming practice lesson.\n\n" +
+    private final String help = "Write \"/help\" to see the guideline\n\n" +
+            "Write \"web register\" or \"programming register\" to register for the upcoming practice lesson.\n\n" +
             "Write \"web cancel\" or \"programming cancel\" to cancel your turn.\n\n" +
             "Write \"web show\" to take a look at the current WEB queue\n\n" +
             "Write \"programming show\" to take a look at the current PROGRAMMING " +
@@ -261,6 +262,7 @@ public class MyBot extends TelegramLongPollingBot {
             // admin feature
             if(userID.equals(adminID)){
                 int firstIndexOfSpace = messageText.indexOf(' ');
+                if(firstIndexOfSpace < 0) return;
                 String role = messageText.substring(0, firstIndexOfSpace);
                 if(role.equals("admin")){
                     // clear : clear the queue
