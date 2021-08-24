@@ -46,7 +46,7 @@ public class MyBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "secret";
+        return "1982606218:AAHRyu-Os4aKMDueW2oY2pld2SXcbXs2kb4";
     }
 
     public void send(String text, String chatId){
@@ -188,7 +188,6 @@ public class MyBot extends TelegramLongPollingBot {
             }
 
             if(messageText.contains("swap")) {
-
 
                 int lastIndexOfSpace = messageText.lastIndexOf(' ');
                 int firstIndexOfSpace = messageText.indexOf(' ');
