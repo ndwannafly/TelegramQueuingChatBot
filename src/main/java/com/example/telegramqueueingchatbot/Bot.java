@@ -16,7 +16,9 @@ public class Bot extends TelegramLongPollingBot {
     private final Map<String, String> chatIdByUserID = new HashMap<>();
     private final Map<String, Integer> userChatID = new HashMap<>();
 
-    private final String adminID = "822910469";
+    private final String adminID1 = "822910469";
+    private final String adminID2 = "490965657";
+
 
     private final String start = "Синтаксис команд:\n" +
             "\n" +
@@ -39,7 +41,9 @@ public class Bot extends TelegramLongPollingBot {
             "(*) push me end -- уйти в конец очереди\n" +
             "(*) swap with X -- поменяться местами с человеком на позиции X (потребует подтверждения этого человека)\n" +
             "\n" +
-            "Напиши /help, чтобы вывести этот экран снова в будущем.";
+            "Напиши /help, чтобы вывести этот экран снова в будущем.\n" +
+            "Напиши /start, чтобы вывести синтаксис снова в будущем.\n\n" +
+            "Author: Nguyen Ngoc Duc - https://github.com/ndwannafly\n";
 
     private final String help = "Доступные команды:\n" +
             "\n" +
@@ -49,7 +53,8 @@ public class Bot extends TelegramLongPollingBot {
             "(*) \"[предмет] push me end\" -- уйти в конец очереди\n" +
             "(*) \"[предмет] swap with X\" -- поменяться местами с человеком на позиции X (потребует подтверждения этого человека)\n" +
             "\n" +
-            "Напиши /help, чтобы вывести этот экран снова в будущем.";
+            "Напиши /help, чтобы вывести этот экран снова в будущем.\n" +
+            "Напиши /start, чтобы вывести синтаксис снова в будущем.\n";
 
     private final String admin_help = " admin get all : get info of all users\n\n" +
             "admin [subject] clear: clear [subject] queue\n\n" +
@@ -102,7 +107,8 @@ public class Bot extends TelegramLongPollingBot {
             if(messageText.equals("/help")){
                 send(help, chatID);
             }
-            if(userID.equals(adminID) && messageText.equals("/help_admin")){
+            boolean isAdmin = userID.equals(adminID1) || userID.equals(adminID2);
+            if((isAdmin) && messageText.equals("/help_admin")){
                 send(admin_help, chatID);
                 return;
             }
@@ -120,52 +126,53 @@ public class Bot extends TelegramLongPollingBot {
             subjectBots.add(new SubjectBot("ОПД", "opd"));
             
             if(messageText.contains("admin")){
-                if(!userID.equals(adminID)){
-                    send("You are not Duc - admin!", chatID);
-                    return;
-                }
-                try {
+                
+                if(isAdmin) {
+                    try {
 
-                    if(messageText.equals("admin get all")){
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for( Map.Entry<String, String> userInfo : usernameByID.entrySet()){
-                            stringBuilder.append(userInfo.getKey()).append(" ").append(userInfo.getValue()).append("\n");
+                        if (messageText.equals("admin get all")) {
+                            StringBuilder stringBuilder = new StringBuilder();
+                            for (Map.Entry<String, String> userInfo : usernameByID.entrySet()) {
+                                stringBuilder.append(userInfo.getKey()).append(" ").append(userInfo.getValue()).append("\n");
+                            }
+                            send(stringBuilder.toString(), chatID);
+                            return;
                         }
-                        send(stringBuilder.toString(), chatID);
-                        return;
-                    }
 
-                    String subject = messageText.split(" ")[1];
-                    int botID = subjectID.get(subject);
-                    String command = messageText.split(" ")[2];
-                    switch (command) {
-                        case "clear":
-                            subjectBots.get(botID).clear();
-                            send(subject + " clear!", chatID);
-                            break;
-                        case "remove": {
-                            String targetID = messageText.split(" ")[3];
-                            if (subjectBots.get(botID).remove(targetID, userChatID.get(targetID)))
-                                send("User with userID " + targetID + " has been removed from " + subject + " queue!", chatID);
-                            else send("Fail to remove! User is not in the queue yet!", chatID);
-                            break;
+                        String subject = messageText.split(" ")[1];
+                        int botID = subjectID.get(subject);
+                        String command = messageText.split(" ")[2];
+                        switch (command) {
+                            case "clear":
+                                subjectBots.get(botID).clear();
+                                send(subject + " clear!", chatID);
+                                break;
+                            case "remove": {
+                                String targetID = messageText.split(" ")[3];
+                                if (subjectBots.get(botID).remove(targetID, userChatID.get(targetID)))
+                                    send("User with userID " + targetID + " has been removed from " + subject + " queue!", chatID);
+                                else send("Fail to remove! User is not in the queue yet!", chatID);
+                                break;
+                            }
+                            case "add": {
+                                String targetID = messageText.split(" ")[3];
+                                if (!usernameByID.containsKey(targetID)) {
+                                    send("Wrong id! Please check it carefully", chatID);
+                                } else if (subjectBots.get(botID).add(targetID)) {
+                                    send("Successfully! Write \"" + subject + " show\" to check the list", chatID);
+                                } else send("Fail to add! User is already in the queue!", chatID);
+                                break;
+                            }
                         }
-                        case "add": {
-                            String targetID = messageText.split(" ")[3];
-                            if (!usernameByID.containsKey(targetID)) {
-                                send("Wrong id! Please check it carefully", chatID);
-                            } else if (subjectBots.get(botID).add(targetID)) {
-                                send("Successfully! Write \"" + subject + " show\" to check the list", chatID);
-                            } else send("Fail to add! User is already in the queue!", chatID);
-                            break;
-                        }
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        send("Wrong format!", chatID);
+                        System.out.println("array out");
+                    } catch (NullPointerException nullPointerException) {
+                        send("Wrong format!", chatID);
+                        System.out.println("null pointer");
                     }
-                } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException){
-                    send("Wrong format!", chatID);
-                    System.out.println("array out");
-                } catch (NullPointerException nullPointerException){
-                    send("Wrong format!", chatID);
-                    System.out.println("null pointer");
+                } else {
+                    send("You are not admin!", chatID);
                 }
             } else{
                 int lastIndexOfSpace = messageText.lastIndexOf(' ');
