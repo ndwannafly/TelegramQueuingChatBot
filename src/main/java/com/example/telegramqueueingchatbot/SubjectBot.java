@@ -62,7 +62,7 @@ public class SubjectBot {
 
     public String show(Map<String, String> usernameByID){
         int cnt = 0;
-        StringBuilder stringBuilder = new StringBuilder("текущая очередь:\n");
+        StringBuilder stringBuilder = new StringBuilder("текущая очередь " + nameSubject + ":\n");
         for( String id : queue ){
             ++cnt;
             stringBuilder.append(cnt).append(": ").append(usernameByID.get(id)).append("\n");
