@@ -141,7 +141,7 @@ public class Bot extends TelegramLongPollingBot {
                     switch (command) {
                         case "clear":
                             subjectBots.get(botID).clear();
-                            send("Web clear!", chatID);
+                            send(subject + " clear!", chatID);
                             break;
                         case "remove": {
                             String targetID = messageText.split(" ")[3];
