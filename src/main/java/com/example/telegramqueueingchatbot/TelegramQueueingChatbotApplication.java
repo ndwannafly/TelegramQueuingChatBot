@@ -18,7 +18,7 @@ public class TelegramQueueingChatbotApplication implements CommandLineRunner {
     public void run(String[] args){
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(new MyBot());
+            telegramBotsApi.registerBot(new Bot());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
